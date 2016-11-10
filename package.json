@@ -1,0 +1,28 @@
+{
+  "name": "tileshrink",
+  "version": "0.1.0",
+  "description": "Reduce and simplify Verctor- and MBTiles on the fly",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rastapasta/tileshrink.git"
+  },
+  "keywords": [
+    "mbtiles",
+    "vectortile",
+    "reduce",
+    "simplify"
+  ],
+  "author": "Michael Straßburger <codepoet@cpan.org>",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-script": "^1.10.0",
+    "pbf": "^3.0.0",
+    "simplify-js": "^1.2.1",
+    "vector-tile": "^1.3.0"
+  }
+}

@@ -21,7 +21,7 @@ module.exports = class Tileshrink
     maxZoom: 13
     saveAs: "mbtiles"
 
-  queueSize: 100
+  queueSize: 1000
 
   source: null
   target: null
@@ -62,16 +62,17 @@ module.exports = class Tileshrink
 
         [z, x, y] = str.split /\//
 
-        @promises.push if z <= @config.maxZoom
+        @promises.push promise = if z <= @config.maxZoom
           @_processTile z, x, y
-          .then ->
-            queueSpots++
-            if paused and queueSpots > 0
-              stream.resume()
-              paused = false
         else
           @_loadTile z, x, y
           .then (buffer) => @_storeTile z, x, y, buffer
+
+        promise.finally ->
+          queueSpots++
+          if paused and queueSpots > 0
+            stream.resume()
+            paused = false
 
       .on 'end', =>
         console.log "[+] waiting for workers..."
@@ -146,7 +147,7 @@ module.exports = class Tileshrink
           @target.putTile z, x, y, buffer, ->
             resolve()
 
-      when "files"
+      when "export"
         Promise
         .resolve ["/#{z}", "/#{z}/#{x}"]
         .mapSeries (folder) => @_createFolder @config.path+folder

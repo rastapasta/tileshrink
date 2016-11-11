@@ -126,7 +126,6 @@ module.exports = class Tileshrink
         else resolve()
 
   _processTile: (z, x, y) ->
-    before = after = 0
     original = null
 
     @_loadTile z, x, y
@@ -136,9 +135,7 @@ module.exports = class Tileshrink
     .then (tile) => @_encodeTile tile
     .then (buffer) => @_gzip buffer
     .then (buffer) =>
-      buffer = original if buffer.length > original.length
       @_trackStats z, x, y, original, buffer
-
       @_storeTile z, x, y, buffer
 
   _storeTile: (z, x, y, buffer) ->
@@ -151,7 +148,7 @@ module.exports = class Tileshrink
       when "export"
         Promise
         .resolve ["/#{z}", "/#{z}/#{x}"]
-        .mapSeries (folder) => @_createFolder @config.path+folder
+        .mapSeries (folder) => @_createFolder @config.destination+folder
         .then =>
           fs.writeFileAsync @config.destination+"/#{z}/#{x}/#{y}.pbf", buffer
 
@@ -201,7 +198,12 @@ module.exports = class Tileshrink
 
         if feature.type is "POLYGON"
           continue if scaled[0].length < 3
-          lines = @_reducePolygon scaled
+          scaled = @_reducePolygon scaled
+
+        else if feature.type is "POINT"
+          scaled = @_clampPoints scaled
+
+        continue if not scaled.length or not scaled[0].length
 
         feature.geometry = @_encodeGeometry feature, scaled
         features.push feature
@@ -228,6 +230,18 @@ module.exports = class Tileshrink
       if ring.length > 2
         reduced.push ring
     reduced
+
+  _clampPoints: (outer) ->
+    clamped = []
+    for points in outer
+      filtered = []
+      for point in points
+        if 0 <= point.x < @config.targetExtent and
+        0 <= point.y < @config.targetExtent
+          filtered.push point
+
+      clamped.push filtered if filtered.length
+    clamped
 
   _decodeGeometry: (geometry) ->
     idx = x = y = count = command = line = 0

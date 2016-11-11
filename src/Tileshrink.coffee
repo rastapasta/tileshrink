@@ -21,15 +21,13 @@ module.exports = class Tileshrink
     maxZoom: 13
     saveAs: "mbtiles"
 
-  queueSize: 1000
+  queueSize: 100
 
   source: null
   target: null
   promises: []
   protobuf: null
 
-  pointsBefore: 0
-  pointsAfter: 0
   bytesBefore: 0
   bytesAfter: 0
 
@@ -45,11 +43,12 @@ module.exports = class Tileshrink
   _shrink: ->
     new Promise (resolve, reject) =>
       stream = @source
-      .createZXYStream batch: @config.queueSize
+      .createZXYStream batch: @queueSize
       .pipe split()
 
-      queueSpots = @config.queueSize
+      queueSpots = @queueSize
       paused = false
+      done = false
 
       stream
       .on 'data', (str) =>
@@ -62,28 +61,30 @@ module.exports = class Tileshrink
 
         [z, x, y] = str.split /\//
 
-        @promises.push promise = if z <= @config.maxZoom
+        promise = if z <= @config.maxZoom
           @_processTile z, x, y
         else
           @_loadTile z, x, y
           .then (buffer) => @_storeTile z, x, y, buffer
 
-        promise.finally ->
+        promise.finally =>
           queueSpots++
           if paused and queueSpots > 0
             stream.resume()
             paused = false
 
+          if queueSpots is @queueSize and done
+            console.log "[+] waiting for workers..."
+            Promise
+            .all @promises
+            .then => @_waitForWrites()
+            .then =>
+              console.log "[+] conversion done!"
+              console.log "[>] saved #{Math.round (@bytesBefore-@bytesAfter)/@bytesBefore*100}% of storage"
+              resolve()
+
       .on 'end', =>
-        console.log "[+] waiting for workers..."
-        Promise
-        .all @promises
-        .then => @_waitForWrites()
-        .then =>
-          console.log "[+] conversion done!"
-          console.log "[>] removed #{c = @pointsBefore-@pointsAfter} points (#{Math.round c/@pointsBefore*100}%)"
-          console.log "[>] saved #{Math.round (@bytesBefore-@bytesAfter)/@bytesBefore*100}% of storage"
-          resolve()
+        done = true
 
   _waitForWrites: ->
     return unless @config.saveAs is "mbtiles"
@@ -196,15 +197,11 @@ module.exports = class Tileshrink
       features = []
       for feature in layer.features
         geometry = @_decodeGeometry feature.geometry
-        @pointsBefore += line.length for line in geometry
-
         scaled = @_scaleAndSimplifyGeometry scale, geometry
 
         if feature.type is "POLYGON"
           continue if scaled[0].length < 3
           lines = @_reducePolygon scaled
-
-        @pointsAfter += line.length for line in scaled
 
         feature.geometry = @_encodeGeometry feature, scaled
         features.push feature

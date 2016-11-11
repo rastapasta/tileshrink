@@ -15,14 +15,16 @@ fs = Promise.promisifyAll require 'fs'
 
 module.exports = class Tileshrink
   config:
-    path: "./output"
+    destination: "./target.mbtiles"
     targetExtent: 512
     precision: 0.5
     maxZoom: 13
+    saveAs: "mbtiles"
 
   queueSize: 100
 
-  mbtiles: null
+  source: null
+  target: null
   promises: []
   protobuf: null
 
@@ -37,11 +39,12 @@ module.exports = class Tileshrink
   shrink: (source) ->
     console.log "[>] starting to shrink"
     @_loadMBTiles source
+    .then => @_createMBTiles @config.destination if @config.saveAs is "mbtiles"
     .then => @_shrink()
 
   _shrink: ->
     new Promise (resolve, reject) =>
-      stream = @mbtiles
+      stream = @source
       .createZXYStream batch: @config.queueSize
       .pipe split()
 
@@ -57,29 +60,66 @@ module.exports = class Tileshrink
           stream.pause()
           paused = true
 
-        [zoom, x, y] = str.split /\//
+        [z, x, y] = str.split /\//
 
-        if zoom < @config.maxZoom
-          @promises.push promise = @_processTile zoom, x, y
-          promise.then ->
+        @promises.push if z <= @config.maxZoom
+          @_processTile z, x, y
+          .then ->
             queueSpots++
             if paused and queueSpots > 0
               stream.resume()
               paused = false
+        else
+          @_loadTile z, x, y
+          .then (buffer) => @_storeTile z, x, y, buffer
 
       .on 'end', =>
         console.log "[+] waiting for workers..."
         Promise
         .all @promises
+        .then => @_waitForWrites()
         .then =>
           console.log "[+] conversion done!"
           console.log "[>] removed #{c = @pointsBefore-@pointsAfter} points (#{Math.round c/@pointsBefore*100}%)"
           console.log "[>] saved #{Math.round (@bytesBefore-@bytesAfter)/@bytesBefore*100}% of storage"
           resolve()
 
+  _waitForWrites: ->
+    return unless @config.saveAs is "mbtiles"
+
+    console.log "[+] finishing database"
+    new Promise (resolve, reject) =>
+      @target.stopWriting (err) =>
+        reject err if err
+        resolve()
+
+  _createMBTiles: (destination) ->
+    new Promise (resolve, reject) =>
+      new MBTiles destination, (err, @target) =>
+        return reject err if err
+
+        @target.startWriting (err) =>
+          return reject err if err
+
+          @source.getInfo (err, info) =>
+            return reject err if err
+            info.mtime = Date.now()
+
+            tag = "simplified with tileshrink (https://github.com/rastapasta/tileshrink)"
+
+            info.description = if info.description
+              info.description + ", " + tag
+            else
+              tag
+
+            @target.putInfo info, (err) =>
+              return reject err if err
+              resolve()
+
+
   _loadMBTiles: (source) ->
     new Promise (resolve, reject) =>
-      @mbtiles = new MBTiles source, (err, @mbtiles) =>
+      new MBTiles source, (err, @source) =>
         if err then reject err
         else resolve()
 
@@ -100,12 +140,18 @@ module.exports = class Tileshrink
       @_storeTile z, x, y, buffer
 
   _storeTile: (z, x, y, buffer) ->
-    Promise
-    .resolve ["/#{z}", "/#{z}/#{x}"]
-    .mapSeries (folder) => @_createFolder @config.path+folder
-    .then =>
-      fs.writeFileAsync @config.path+"/#{z}/#{x}/#{y}.pbf", buffer
-      true
+    switch @config.saveAs
+      when "mbtiles"
+        new Promise (resolve) =>
+          @target.putTile z, x, y, buffer, ->
+            resolve()
+
+      when "files"
+        Promise
+        .resolve ["/#{z}", "/#{z}/#{x}"]
+        .mapSeries (folder) => @_createFolder @config.path+folder
+        .then =>
+          fs.writeFileAsync @config.destination+"/#{z}/#{x}/#{y}.pbf", buffer
 
   _createFolder: (path) ->
     fs
@@ -115,7 +161,7 @@ module.exports = class Tileshrink
 
   _loadTile: (z, x, y) ->
     new Promise (resolve, reject) =>
-      @mbtiles.getTile z, x, y, (err, tile) ->
+      @source.getTile z, x, y, (err, tile) ->
         return reject err if err
         resolve tile
 

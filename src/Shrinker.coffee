@@ -10,16 +10,22 @@ simplify = require 'simplify-js'
 
 module.exports = class Shrinker
   config:
-    targetExtent: 512
-    precision: 0.5
+    extent: 1024
+    precision: 1
+    include: null
+    shrink: null
+
     clampPoints: true
 
   constructor: (options) ->
     @config[option] = options[option] for option of options
+    @maxZoom = if @config.include then @config.include else @config.shrink
 
-  shrink: (tile) ->
+  shrink: (tile, z, x, y) ->
+    return if z > @config.shrink
+
     for layer in tile.layers
-      scale = layer.extent / @config.targetExtent
+      scale = layer.extent / @config.extent
       features = []
       for feature in layer.features
         geometry = @_scaleAndSimplifyGeometry scale, feature.geometry
@@ -37,7 +43,9 @@ module.exports = class Shrinker
         features.push feature
 
       layer.features = features
-      layer.extent = @config.targetExtent
+      layer.extent = @config.extent
+
+    true
 
   _scaleAndSimplifyGeometry: (scale, lines) ->
     for line, i in lines
@@ -62,8 +70,8 @@ module.exports = class Shrinker
     for points in outer
       filtered = []
       for point in points
-        if 0 <= point.x < @config.targetExtent and
-        0 <= point.y < @config.targetExtent
+        if 0 <= point.x < @config.extent and
+        0 <= point.y < @config.extent
           filtered.push point
 
       clamped.push filtered if filtered.length

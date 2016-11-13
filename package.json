@@ -29,6 +29,6 @@
     "command-line-args": "^3.0.3",
     "command-line-usage": "^3.0.7",
     "simplify-js": "^1.2.1",
-    "tilegrinder": "^0.1.1"
+    "tilegrinder": "^0.1.2"
   }
 }

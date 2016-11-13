@@ -10,11 +10,11 @@ Helpful in case
 
 ## Requirements
 
-* The upstream library `tilegrinder` uses the native protobuf wrapper library [`node-protobuf`](https://github.com/fuwaneko/node-protobuf) for its magic
+* The upstream library [`tilegrinder`](https://github.com/rastapasta/tilegrinder) uses the native protobuf wrapper library [`node-protobuf`](https://github.com/fuwaneko/node-protobuf) for its magic
 
 * To let it build during `npm install`, take care of following things:
 
-  * Linux: libprotobuf must be present (`apt-get install build-essential pkg-config libprotobuf-dev`)
+  * Linux: `libprotobuf` must be present (`apt-get install build-essential pkg-config libprotobuf-dev`)
 
   * OSX: Use [`homebrew`](http://brew.sh/) to install `protobuf` with `brew install pkg-config` and `brew install --devel protobuf`
 

@@ -22,7 +22,7 @@ Helpful in case
 
 ## How to install it?
 
-    `npm install -g tileshrink`
+    npm install -g tileshrink
 
 ## How to use it?
 

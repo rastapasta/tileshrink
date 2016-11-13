@@ -1,4 +1,7 @@
 # tileshrink
+[![npm version](https://badge.fury.io/js/tileshrink.svg)](https://badge.fury.io/js/tileshrink)
+![dependencies](https://david-dm.org/rastapasta/tileshrink.svg)
+![license](https://img.shields.io/github/license/rastapasta/tileshrink.svg)
 
 Reduce and simplify all features of all [vector tiles](https://github.com/mapbox/vector-tile-spec/tree/master/2.1) in an [MBTiles](https://www.mapbox.com/help/an-open-platform/#mbtiles) container.
 

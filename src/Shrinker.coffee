@@ -5,7 +5,6 @@
   Downsamples the extent of all layers and simplifies the resulting polylines
 ###
 
-Promise = require 'bluebird'
 simplify = require 'simplify-js'
 
 module.exports = class Shrinker
@@ -19,7 +18,6 @@ module.exports = class Shrinker
 
   constructor: (options) ->
     @config[option] = options[option] for option of options
-    @maxZoom = if @config.include then @config.include else @config.shrink
 
   shrink: (tile, z, x, y) ->
     return if z > @config.shrink

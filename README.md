@@ -8,8 +8,6 @@ Helpful in case
 
 * you want to create a ultra-low-bandwidth MBTiles version
 
-Developed for the terminal map viewer [`mapscii`](https://github.com/rastapasta/mapscii) to create a MBTiles with an extent of 512 in zoom levels 0 to 13 and keeping an extent of 4096 in the final zoom level 14.
-
 ## Requirements
 
 * The upstream library `tilegrinder` uses the native protobuf wrapper library [`node-protobuf`](https://github.com/fuwaneko/node-protobuf) for its magic

@@ -21,13 +21,13 @@ args = [
     type: Number,
     defaultValue: 1024,
     typeLabel: "[underline]{pixel}"
-    description: "the desired extent of the new layers [deault: 1024]"
+    description: "desired extent of the new layers [deault: 1024]"
   ,
     name: "precision",
     type: Number,
     defaultValue: 1,
     typeLabel: "[underline]{float}"
-    description: "affetcts the level of simplification [deault: 1]"
+    description: "affects the level of simplification [deault: 1]"
   ,
     name: "shrink"
     type: Number
@@ -51,7 +51,7 @@ args = [
 
 help = [
     header: "tileshrink",
-    content: "Reduce and simplify all features of all vector tiles in an MBTiles container"
+    content: "Reduce and simplify Vector Tile features in an MBTiles container"
   ,
     header: "Examples",
     content: [

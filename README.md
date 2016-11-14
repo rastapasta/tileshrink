@@ -3,7 +3,7 @@
 ![dependencies](https://david-dm.org/rastapasta/tileshrink.svg)
 ![license](https://img.shields.io/github/license/rastapasta/tileshrink.svg)
 
-Reduce and simplify all features of all [vector tiles](https://github.com/mapbox/vector-tile-spec/tree/master/2.1) in an [MBTiles](https://www.mapbox.com/help/an-open-platform/#mbtiles) container.
+Reduce and simplify all features of all or any [vector tiles](https://github.com/mapbox/vector-tile-spec/tree/master/2.1) in an [MBTiles](https://www.mapbox.com/help/an-open-platform/#mbtiles) container.
 
 Helpful in case
 
@@ -19,9 +19,10 @@ Helpful in case
 
   * Linux: `libprotobuf` must be present (`apt-get install build-essential pkg-config libprotobuf-dev`)
 
-  * OSX: Use [`homebrew`](http://brew.sh/) to install `protobuf` with `brew install pkg-config` and `brew install --devel protobuf`
+  * OSX: Use [`homebrew`](http://brew.sh/) to install `protobuf` with `brew install pkg-config protobuf`
 
-  * Windows: hard to compile.. sorry, mate!
+  * Windows: `node-protobuf` includes a pre-compiled version for 64bit systems
+
 
 ## How to install it?
 
@@ -34,7 +35,7 @@ $ tileshrink --help
 
 tileshrink
 
-  Reduce and simplify all features of all vector tiles in an MBTiles container
+  Reduce and simplify Vector Tile features in an MBTiles container
 
 Examples
 
@@ -43,8 +44,8 @@ Examples
 
 Options
 
-  --extent pixel      the desired extent of the new layers [deault: 1024]          
-  --precision float   affetcts the level of simplification [deault: 1]             
+  --extent pixel      desired extent of the new layers [deault: 1024]          
+  --precision float   affects the level of simplification [deault: 1]             
   --shrink zoom       maximal zoomlevel to apply the shrinking                     
   --include zoom      maximal zoomlevel to import untouched layers from [optional]
   --output type       mbtiles (default) or files                                   

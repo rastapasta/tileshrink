@@ -1,6 +1,6 @@
 {
   "name": "tileshrink",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reduce and simplify Vector Tile features in an MBTiles container",
   "main": "main.js",
   "scripts": {

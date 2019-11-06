@@ -1,5 +1,5 @@
 # tileshrink
-[![npm version](https://badge.fury.io/js/tileshrink.svg)](https://badge.fury.io/js/tileshrink)
+[![npm version](https://badge.fury.io/js/tileshrink.svg)](https://badge.fury.io/js/tileshrink) [![Greenkeeper badge](https://badges.greenkeeper.io/rastapasta/tileshrink.svg)](https://greenkeeper.io/)
 ![dependencies](https://david-dm.org/rastapasta/tileshrink.svg)
 ![license](https://img.shields.io/github/license/rastapasta/tileshrink.svg)
 

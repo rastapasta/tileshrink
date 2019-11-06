@@ -25,8 +25,8 @@
   "license": "MIT",
   "dependencies": {
     "coffee-script": "^1.11.1",
-    "command-line-args": "^3.0.3",
-    "command-line-usage": "^3.0.7",
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^6.1.0",
     "simplify-js": "^1.2.1",
     "tilegrinder": "^0.1.2"
   }
